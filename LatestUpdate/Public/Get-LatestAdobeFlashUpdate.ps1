@@ -54,8 +54,19 @@ Function Get-LatestAdobeFlashUpdate {
         [System.String[]] $Version = $script:resourceStrings.ParameterValues.Windows10Versions[0],
 
         [Parameter(Mandatory = $False)]
-        [System.Management.Automation.SwitchParameter] $Previous
+        [System.Management.Automation.SwitchParameter] $Previous,
+
+        [Parameter(Mandatory = $False)]
+        [System.String] $Proxy,
+
+        [Parameter(Mandatory = $False)]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential = [System.Management.Automation.PSCredential]::Empty
     )
+
+    if ($PSBoundParameters.ContainsKey('Proxy') -or $PSBoundParameters.ContainsKey('ProxyCredential')) {
+        $null = Set-Proxy -Proxy $Proxy -ProxyCredential $ProxyCredential
+    }
     
     # If resource strings are returned we can continue
     If ($Null -ne $script:resourceStrings) {
@@ -81,7 +92,7 @@ Function Get-LatestAdobeFlashUpdate {
                         ForEach ($ver in $Version) {
 
                             # Get download info for each update from the catalog
-                            Write-Verbose -Message "$($MyInvocation.MyCommand): searching catalog for: [$($update.Title)]."
+                            Write-Verbose -Message "$($MyInvocation.MyCommand): searching catalog for: [$($updateList.Title)]."
                             $downloadInfoParams = @{
                                 UpdateId        = $updateList.ID
                                 OperatingSystem = $script:resourceStrings.SearchStrings.$OperatingSystem
